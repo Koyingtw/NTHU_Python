@@ -34,6 +34,7 @@ class Account:
     
     def login(self): # login to your account and check if the password is correct
         self.username = input("Please enter your username: ")
+        # password use md5 hash, and it wont be shown on the screen
         self.password = hashlib.md5(getpass.getpass("Please enter your password: ").encode(encoding='UTF-8')).hexdigest() 
                 
         collection = self.db.users
@@ -42,7 +43,6 @@ class Account:
         if user is None:
             print("User not found!")
         else:
-            print(user["password"], self.password)
             if user["password"] == self.password:
                 self.status = "login"
                 print("Login successfully!")
@@ -56,18 +56,25 @@ class Account:
         
     def register(self):
         self.username = input("Please enter your username: ")
+        # password use md5 hash, and it wont be shown on the screen
         self.password = hashlib.md5(getpass.getpass("Please enter your password: ").encode(encoding='UTF-8')).hexdigest() 
+        # password check, if the two password are not the same, then user need to input username and password again
+        passwordCheck = hashlib.md5(getpass.getpass("Please enter your password again: ").encode(encoding='UTF-8')).hexdigest() 
         
-        collection = self.db.users
-        user = collection.find_one({"username": self.username})
-        if user is None:
+        if self.password != passwordCheck:
+            print("Passwords don't match!")
+            return
+        
+        collection = self.db.users # find the collection of users
+        user = collection.find_one({"username": self.username}) # find the user in the collection
+        if user is None: # if the user is not in the collection, then add the user to the collection
             balance = int(input("How much money do you have? "))
             collection.insert_one({"username": self.username, "password": self.password, "balance": balance})
             self.db.create_collection(self.username)
             print("Register successfully!")
             
-            self.login()
-        else:
+            self.login() # login after register
+        else: 
             print("User already exists!")
 
 if __name__ == "__main__":

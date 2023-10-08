@@ -8,8 +8,8 @@ class App:
     record = None # All detail records of current user
     user = None # Current user
     
-    def guest_mode(self):
-        self.account = auth.Account()
+    def guest_mode(self): 
+        self.account = auth.Account() # Create an Account object
         
         while (self.account.status == "logout"):
             operation = input("Please enter your operation: [login | register | exit]\n")

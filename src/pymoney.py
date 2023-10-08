@@ -2,7 +2,8 @@ import app
 
 if __name__ == "__main__":
     print("Welcome to Pymoney!")
-    pymoney = app.App()
-    pymoney.guest_mode()
-    pymoney.user_mode()
+    while True:
+        pymoney = app.App() # Create an App object
+        pymoney.guest_mode() # Guest mode (hasn't logged in yet)
+        pymoney.user_mode() # User mode (has logged in)
     
