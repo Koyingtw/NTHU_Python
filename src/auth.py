@@ -26,7 +26,6 @@ class Account:
         self.client = MongoClient(uri, server_api=ServerApi('1'))
         self.db = self.client.pymoney
         
-        # TODO: 紀錄連線狀態，如果沒有連上就以本地儲存為主
         try:
             self.client.admin.command('ping')
             print("Pinged your deployment. You successfully connected to MongoDB!")
