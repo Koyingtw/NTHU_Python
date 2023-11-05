@@ -6,6 +6,7 @@ from pymongo.server_api import ServerApi
 import os
 import sys
 from dotenv import load_dotenv
+from datetime import datetime
 load_dotenv()
 
 import getpass # For password input
@@ -16,6 +17,7 @@ class Account:
     client = None
     db = None
     status = "logout"
+    connected = False
     
     
     def __init__(self): # Initialize, connect to MongoDB Atlas
@@ -23,15 +25,22 @@ class Account:
         uri = os.getenv('MONGODB_URI')
         self.client = MongoClient(uri, server_api=ServerApi('1'))
         self.db = self.client.pymoney
+        
+        # TODO: 紀錄連線狀態，如果沒有連上就以本地儲存為主
         try:
             self.client.admin.command('ping')
             print("Pinged your deployment. You successfully connected to MongoDB!")
+            self.connected = True
         except Exception as e:
-            print(e)
+            sys.stderr.write(e)
+            self.connected = False
+            
             
     def __del__(self): # Disconnect from MongoDB Atlas
-        self.client.close()
-        print("Disconnected from MongoDB Atlas.")
+        if self.connected == False:
+            self.client.close()
+            print("Disconnected from MongoDB Atlas.")
+        connected = False
     
     def login(self): # login to your account and check if the password is correct
         self.username = input("Please enter your username: ")
@@ -52,7 +61,7 @@ class Account:
                     file = open(f"../database/{self.username}.txt", "r")
                 except FileNotFoundError as e:
                     file = open(f"../database/{self.username}.txt", "w+")
-                    sys.stderr.write(e)
+                    sys.stderr.write(str(e))
             else:
                 print("Wrong password!")
         
@@ -63,8 +72,16 @@ class Account:
         
     def register(self):
         self.username = input("Please enter your username: ")
+        if len(self.username) == 0 or self.username.isspace():
+            print("Username cannot be empty!")
+            return
+        elif self.username == "users":
+            print("Username cannot be users!")
+            return
+        
         # password use md5 hash, and it wont be shown on the screen
         self.password = hashlib.md5(getpass.getpass("Please enter your password: ").encode(encoding='UTF-8')).hexdigest() 
+        
         # password check, if the two password are not the same, then user need to input username and password again
         passwordCheck = hashlib.md5(getpass.getpass("Please enter your password again: ").encode(encoding='UTF-8')).hexdigest() 
         
@@ -78,6 +95,10 @@ class Account:
             balance = int(input("How much money do you have? "))
             collection.insert_one({"username": self.username, "password": self.password, "balance": balance})
             self.db.create_collection(self.username)
+            
+            # add an initial record to the collection
+            detailCollection = self.db[self.username]
+            detailCollection.insert_one({"time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "description": "Initial", "amount": balance, "deleted": False})
             print("Register successfully!")
             
             self.login() # login after register
