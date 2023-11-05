@@ -60,7 +60,7 @@ class Account:
                 try:
                     file = open(f"../database/{self.username}.txt", "r")
                 except FileNotFoundError as e:
-                    file = open(f"../database/{self.username}.txt", "w+")
+                    file = open(f"../database/{self.username}.txt", "w")
                     sys.stderr.write(str(e))
             else:
                 print("Wrong password!")
