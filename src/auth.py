@@ -4,6 +4,7 @@ from pymongo.server_api import ServerApi
 
 
 import os
+import sys
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -46,6 +47,12 @@ class Account:
             if user["password"] == self.password:
                 self.status = "login"
                 print("Login successfully!")
+                
+                try:
+                    file = open(f"../database/{self.username}.txt", "r")
+                except FileNotFoundError as e:
+                    file = open(f"../database/{self.username}.txt", "w+")
+                    sys.stderr.write(e)
             else:
                 print("Wrong password!")
         
