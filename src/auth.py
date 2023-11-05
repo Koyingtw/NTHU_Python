@@ -61,7 +61,8 @@ class Account:
                     file = open(f"../database/{self.username}.txt", "r")
                 except FileNotFoundError as e:
                     file = open(f"../database/{self.username}.txt", "w")
-                    sys.stderr.write(str(e))
+                    sys.stderr.write(str(e) + "\n")
+                    print("Creating a new file...")
             else:
                 print("Wrong password!")
         
