@@ -98,7 +98,7 @@ class Account:
             
             # add an initial record to the collection
             detailCollection = self.db[self.username]
-            detailCollection.insert_one({"time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "description": "Initial", "amount": balance, "deleted": False})
+            detailCollection.insert_one({"time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "category": "initial", "description": "Initial", "amount": balance, "deleted": False})
             print("Register successfully!")
             
             self.login() # login after register
