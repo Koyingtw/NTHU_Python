@@ -12,6 +12,8 @@ load_dotenv()
 import getpass # For password input
 
 class Account:
+    """A class to handle account operations for a personal finance application."""
+
     username = ""
     password = ""
     client = None
@@ -21,6 +23,8 @@ class Account:
     
     
     def __init__(self): # Initialize, connect to MongoDB Atlas
+        """Initialize the Account class and connect to MongoDB Atlas."""
+
         print("Connecting to MongoDB Atlas...")
         uri = os.getenv('MONGODB_URI')
         self.client = MongoClient(uri, server_api=ServerApi('1'))
@@ -36,12 +40,16 @@ class Account:
             
             
     def __del__(self): # Disconnect from MongoDB Atlas
+        """Disconnect from MongoDB Atlas when the object is destroyed."""
+
         if self.connected == False:
             self.client.close()
             print("Disconnected from MongoDB Atlas.")
         connected = False
     
     def login(self): # login to your account and check if the password is correct
+        """Log in to your account and verify the password."""
+
         self.username = input("Please enter your username: ")
         # password use md5 hash, and it wont be shown on the screen
         self.password = hashlib.md5(getpass.getpass("Please enter your password: ").encode(encoding='UTF-8')).hexdigest() 
@@ -66,11 +74,15 @@ class Account:
                 print("Wrong password!")
         
     def logout(self):
+        """Log out from the current account."""
+
         self.username = ""
         self.password = ""
         self.status = "logout"
         
     def register(self):
+        """Register a new account."""
+
         self.username = input("Please enter your username: ")
         if len(self.username) == 0 or self.username.isspace():
             print("Username cannot be empty!")

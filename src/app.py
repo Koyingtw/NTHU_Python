@@ -5,14 +5,18 @@ import difflib
 
 # TODO: Change classname to Record (done)
 class Record:
-    account = None # Account object
-    detailCollection = None # Collection of detail records
-    userCollection = None # Collection of all user records
-    record = None # All detail records of current user
-    user = None # Current user
-    localBalance = None # Balance of local database
-    Categories = None # Category class
-    
+    """A class to handle record operations for a personal finance application."""
+
+    def __init__(self):
+        """Initialize the Record class with default category structure and other essential data."""
+        self.account = None  # Account object
+        self.detailCollection = None  # Collection of detail records
+        self.userCollection = None  # Collection of all user records
+        self.record = None  # All detail records of current user
+        self.user = None  # Current user
+        self.localBalance = None  # Balance of local database
+        self.Categories = cate.Categories()  # Category class instance
+
     # TODO: add categories to data format (done)
     
     # local data format: 
@@ -23,12 +27,16 @@ class Record:
     # 0: time, 1: category, 2: description, 3: amount, 4: deleted
     
     def record_key(self, record): # sort by time and description # TODO: add categories record (done)
+        """Generate a sorting key based on time and description of the record."""
+
         parts = record.split(', ')
         record_time = datetime.strptime(parts[0], "%Y-%m-%d %H:%M:%S")
         record_description = parts[2]
         return (record_time, record_description)
     
     def overwrite_local(self): # TODO: add categories record (done)
+        """Overwrite local file with the current data."""
+
         file = open(f"../database/{self.account.username}.txt", "w+")
         file.writelines(f"{self.user['balance']}\n")
         file.writelines([f"{record.get('time')}, {record.get('category')}, {record.get('description')}, {record.get('amount')}, {record.get('deleted')}\n" for record in self.record])
@@ -36,6 +44,8 @@ class Record:
         self.localBalance = self.user["balance"]
         
     def overwrite_cloud(self, lines): # TODO: add categories record (done)
+        """Overwrite cloud database with the provided data."""
+
         self.detailCollection.delete_many({})
         amount = int(lines[0])
         
@@ -49,6 +59,8 @@ class Record:
         self.record = list(self.detailCollection.find(sort=[("time", 1), ("description", 1)]))
         
     def validate_local(self): # TODO: add categories record (done)
+        """Validate the format of local database file."""
+
         # Read local database into lines
         with open(f"../database/{self.account.username}.txt", "r") as file:
             lines = [line.strip() for line in file]
@@ -73,6 +85,8 @@ class Record:
                 return False
     
     def sync(self): # TODO: add categories record (done)
+        """Synchronize local and cloud databases."""
+
         cloudData = []
         if self.account.connected == True:
             # Update detailCollection, userCollection, record and user
@@ -135,6 +149,8 @@ class Record:
         return
     
     def guest_mode(self): 
+        """Handle guest mode operations like login, register, exit."""
+
         self.account = auth.Account() # Create an Account object
         
         while (self.account.status == "logout"):
@@ -156,6 +172,8 @@ class Record:
         return
     
     def add(self): # TODO: add categories record (done)
+        """Add new expense or income records."""
+
         # Parse input
         contents = list(map(str, input("Add some expense or income records with description and amount: \ncate1 desc1 amt1, cate2 desc2 amt2, cate3 desc3 amt3, ...\n").split(sep=", ")))
         
@@ -238,9 +256,13 @@ class Record:
         print("Add successfully! Now you have:", self.user["balance"], "dollars.")
     
     def balance(self):
+        """Display the current balance."""
+
         print("You have", self.localBalance, "dollars.")
         
     def list(self, all, target_categories = None): # TODO: add categories record (done)
+        """List all records, optionally filtered by category."""
+
         self.balance()
         with open(f"../database/{self.account.username}.txt", "r") as file:
             lines = [line.strip() for line in file]
@@ -264,6 +286,8 @@ class Record:
                 print(output)
             
     def delete(self): # TODO: add categories record (done)
+        """Delete a record based on its index."""
+
         index = int(input("Please enter the index of the record you want to delete: "))
         
         # Update local database buffer
@@ -293,6 +317,8 @@ class Record:
         print("Delete successfully! Now you have:", self.localBalance, "dollars.")
     
     def find(self): # TODO: user can find records by category (done)
+        """Find records based on category."""
+
         category = input("Which category do you want to find? ")
         if self.Categories.is_category_valid(category) == False:
             print("Invalid category!\nThe specified category is not in the category list.\nYou can check the category list by command \"view categories\".\nFail to find a record.")
@@ -300,9 +326,10 @@ class Record:
     
         subcategories = self.Categories.find_subcategories(category)
         self.list(False, subcategories)
-        
             
     def user_mode(self):
+        """Handle user mode operations."""
+
         operation = ""
         # TODO: Call initialize_categories before the while loop and assign the returned value to a variable categories. (done)
         self.Categories = cate.Categories()
